@@ -1,9 +1,7 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
-#include <sstream>
-#include <iomanip>
+#include <fstream>
 
 class Question {
 public:
@@ -17,36 +15,24 @@ public:
 class Quiz {
 private:
     std::vector<Question> questions;
-    std::string quizFile;
 
 public:
-    Quiz(const std::string& fileName) : quizFile(fileName) {
-        loadQuestions();
-    }
-
-    void loadQuestions() {
-        std::ifstream file(quizFile);
-        if (!file.is_open()) {
-            std::cerr << "Error opening file: " << quizFile << std::endl;
-            return;
-        }
-
-        std::string line;
-        while (std::getline(file, line)) {
-            std::string questionText;
-            std::string answerText;
-            std::istringstream iss(line);
-            std::getline(iss, questionText, '|');
-            std::getline(iss, answerText);
-            questions.emplace_back(questionText, answerText);
-        }
-
-        file.close();
+    Quiz() {
+        // Predefined questions
+        questions.emplace_back("What is the capital of France?", "Paris");
+        questions.emplace_back("What is 2 + 2?", "4");
+        questions.emplace_back("What is the largest ocean on Earth?", "Pacific Ocean");
+        questions.emplace_back("Who wrote 'Hamlet'?", "William Shakespeare");
+        questions.emplace_back("What is the chemical symbol for water?", "H2O");
     }
 
     void takeQuiz() {
         int score = 0;
         std::string userAnswer;
+        std::string name;
+
+        std::cout << "Enter your name: ";
+        std::getline(std::cin, name);
 
         for (const auto& question : questions) {
             std::cout << question.questionText << std::endl;
@@ -59,15 +45,12 @@ public:
         }
 
         std::cout << "Your score: " << score << "/" << questions.size() << std::endl;
-        saveScore(score);
+        saveScore(name, score);
     }
 
-    void saveScore(int score) {
+    void saveScore(const std::string& name, int score) {
         std::ofstream leaderboard("leaderboard.txt", std::ios::app);
         if (leaderboard.is_open()) {
-            std::string name;
-            std::cout << "Enter your name: ";
-            std::getline(std::cin, name);
             leaderboard << name << ": " << score << std::endl;
             leaderboard.close();
         } else {
@@ -90,32 +73,38 @@ public:
 
         leaderboard.close();
     }
+
+    void showQuestions() {
+        std::cout << "Questions in the quiz:\n";
+        for (const auto& question : questions) {
+            std::cout << "- " << question.questionText << std::endl;
+        }
+    }
 };
 
 int main() {
     std::cout << "Welcome to the Quiz Application!" << std::endl;
-    std::string fileName;
 
-    std::cout << "Enter the quiz file name: ";
-    std::getline(std::cin, fileName);
+    Quiz quiz;
 
-    Quiz quiz(fileName);
-    
     while (true) {
         int choice;
-        std::cout << "1. Take Quiz\n2. Show Leaderboard\n3. Exit\n";
+        std::cout << "\n1. Take Quiz\n2. Show Questions\n3. Show Leaderboard\n4. Exit\n";
         std::cout << "Choose an option: ";
         std::cin >> choice;
-        std::cin.ignore(); // To ignore the newline after the integer input
+        std::cin.ignore(); 
 
         switch (choice) {
             case 1:
                 quiz.takeQuiz();
                 break;
             case 2:
-                quiz.showLeaderboard();
+                quiz.showQuestions();
                 break;
             case 3:
+                quiz.showLeaderboard();
+                break;
+            case 4:
                 std::cout << "Goodbye!" << std::endl;
                 return 0;
             default:
